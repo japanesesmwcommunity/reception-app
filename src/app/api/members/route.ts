@@ -7,7 +7,7 @@ export const GET = async () => {
 		const members: DiscordMember[] = await DiscordAPI.getGuildMembers();
 
 		// botを除外
-		const humanMembers = members.filter((member: any) => !member.user.bot);
+		const humanMembers = members.filter((member: DiscordMember) => !member.user.bot);
 
 		// 必要なプロパティのみを抽出
 		const processedMembers: Member[] = humanMembers.map((member) => ({

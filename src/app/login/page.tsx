@@ -40,7 +40,7 @@ export default function LoginPage() {
 				setError("ユーザー名またはパスワードが間違っています");
 			}
 		} catch (error) {
-			setError("ログインに失敗しました");
+			setError(`ログインに失敗しました: ${error}`);
 		} finally {
 			setLoading(false);
 		}

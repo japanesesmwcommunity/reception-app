@@ -125,7 +125,7 @@ const ReceptionPage = () => {
       
       setPaymentReceived(false)
     } catch (error) {
-      setMessage('登録中にエラーが発生しました')
+      setMessage(`登録中にエラーが発生しました: ${error}`)
     } finally {
       setLoading(false)
     }
