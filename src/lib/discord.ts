@@ -1,12 +1,13 @@
 import {DiscordMember, DiscordRole} from "@/types/discord";
-import {HttpMethod} from "@/types/http";
+import {HttpMethod} from "../types/http";
 
 export class DiscordAPI {
 	private static async request(
 		endpoint: string,
-		method: HttpMethod = HttpMethod.GET,
+		method: HttpMethod = "GET",
 	): Promise<any> {
 		const response = await fetch(`https://discord.com/api/v10${endpoint}`, {
+			method,
 			headers: {
 				Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
 				"Content-Type": "application/json",
@@ -16,6 +17,11 @@ export class DiscordAPI {
 		if (!response.ok) {
 			throw new Error(`Discord API error: ${response.status}`);
 		}
+
+		if (method == "PUT" && response.status === 204) {
+			return null;
+		}
+
 		return response.json();
 	}
 
@@ -35,7 +41,7 @@ export class DiscordAPI {
 	): Promise<void> {
 		await this.request(
 			`/guilds/${process.env.DISCORD_GUILD_ID}/members/${userId}/roles/${roleId}`,
-			HttpMethod.PUT,
+			"PUT",
 		);
 	}
 }
