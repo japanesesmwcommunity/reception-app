@@ -2,7 +2,6 @@ import {DiscordMember, DiscordRole} from "@/types/discord";
 import {HttpMethod} from "../types/http";
 
 export class DiscordAPI {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private static async request(
 		endpoint: string,
 		method: HttpMethod = "GET",
