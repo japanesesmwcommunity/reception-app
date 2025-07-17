@@ -28,7 +28,6 @@ const ReceptionPage = () => {
 		useState<ParticipantType>("discord");
 	const [selectedMember, setSelectedMember] = useState("");
 	const [memberRoles, setMemberRoles] = useState<string[]>([]);
-	const [selectedRole, setSelectedRole] = useState("");
 	const [username, setUsername] = useState("");
 	const [contact, setContact] = useState("");
 	const [paymentReceived, setPaymentReceived] = useState(false);
@@ -67,6 +66,7 @@ const ReceptionPage = () => {
 	// メンバー選択時の処理
 	const handleMemberChange = (memberId: string) => {
 		setSelectedMember(memberId);
+		setPaymentReceived(false);
 		const member = members.find((m) => m.id === memberId);
 		if (member) {
 			setMemberRoles(member.roles);
@@ -86,25 +86,17 @@ const ReceptionPage = () => {
 					headers: {"Content-Type": "application/json"},
 					body: JSON.stringify({
 						userId: selectedMember,
-						roleId: selectedRole,
+						roles: memberRoles,
 					}),
 				});
 
 				const data = await response.json();
 				if (data.success) {
-					setMembers((prev) =>
-						prev.map((member) =>
-							member.id === selectedMember
-								? {...member, roles: [...member.roles, selectedRole]}
-								: member,
-						),
-					);
 					setMessage("登録が完了しました！");
 					// フォームリセット
 					setSelectedMember("");
-					setSelectedRole("");
 				} else {
-					setMessage("登録に失敗しました: " + data.error);
+					setMessage("エラー: " + data.error);
 				}
 			} else {
 				// 一般参加者の場合：Google Sheets記録（後で実装）
@@ -121,16 +113,6 @@ const ReceptionPage = () => {
 			setLoading(false);
 		}
 	};
-
-	// 利用可能なロール（現在のロールを除外）
-	const availableRoles = roles.filter((role) => !memberRoles.includes(role.id));
-
-	// 登録ボタンの有効性
-	const isFormValid =
-		paymentReceived &&
-		(participantType === "discord"
-			? selectedMember && selectedRole
-			: username && contact);
 
 	return (
 		<Container maxWidth='md'>
@@ -216,23 +198,6 @@ const ReceptionPage = () => {
 									</Box>
 								</Box>
 							)}
-
-							{/* ロール選択 */}
-							<FormControl fullWidth sx={{mb: 2}}>
-								<InputLabel>付与するロール</InputLabel>
-								<Select
-									value={selectedRole}
-									onChange={(e) => setSelectedRole(e.target.value)}
-									label='付与するロール'
-									disabled={!selectedMember}
-								>
-									{availableRoles.map((role) => (
-										<MenuItem key={role.id} value={role.id}>
-											{role.name}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
 						</Box>
 					)}
 
@@ -276,7 +241,7 @@ const ReceptionPage = () => {
 						variant='contained'
 						size='large'
 						onClick={handleRegister}
-						disabled={!isFormValid || loading}
+						disabled={!paymentReceived || loading}
 					>
 						{loading ? "登録中..." : "登録"}
 					</Button>

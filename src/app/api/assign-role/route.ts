@@ -3,23 +3,43 @@ import {NextRequest, NextResponse} from "next/server";
 
 export const POST = async (request: NextRequest) => {
 	try {
-		const {userId, roleId} = await request.json();
+		const {userId, roles} = await request.json();
 
-		if (!userId || !roleId) {
+		if (!userId || !roles) {
 			return NextResponse.json(
 				{
 					success: false,
-					error: "userId and roleId are required.",
+					error: "ユーザーを選択してください。",
 				},
 				{status: 400},
 			);
 		}
 
-		await DiscordAPI.assignRoleToMember(userId, roleId);
+		if (!process.env.DISCORD_ROLE_ID) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: "システムエラーが発生しました。",
+				},
+				{status: 422},
+			);
+		}
+
+		if (roles.includes(process.env.DISCORD_ROLE_ID)) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: "すでに受付を済ませたメンバーです。",
+				},
+				{status: 403},
+			);
+		}
+
+		await DiscordAPI.assignRoleToMember(userId, process.env.DISCORD_ROLE_ID);
 
 		return NextResponse.json({
 			success: true,
-			message: "Role assigned successfully.",
+			message: "登録が完了しました。",
 		});
 	} catch (e) {
 		console.log("Failed to assign role.", e);
