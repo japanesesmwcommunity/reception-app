@@ -1,5 +1,5 @@
 import {DiscordMember, DiscordRole} from "@/types/discord";
-import {HttpMethod} from "../types/http";
+import {HttpMethod} from "@/types/http";
 
 export class DiscordAPI {
 	private static async request(
